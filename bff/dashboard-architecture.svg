@@ -1,0 +1,115 @@
+<svg width="960" height="620" viewBox="0 0 960 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="t d">
+<title id="t">Secure live-feed dashboard architecture</title>
+<desc id="d">Claude builds the frontend at build time; at run time customer data flows browser to BFF to data store, with Claude outside the data plane.</desc>
+<defs>
+  <style>
+    .sans { font-family: "Haffer","Inter","Helvetica Neue",Arial,sans-serif; }
+    .h  { fill:#FBFBFB; font-weight:600; }
+    .hd { fill:#441363; font-weight:600; }
+    .lbl{ fill:#160923; font-weight:500; }
+    .sub{ fill:#56544E; }
+    .subw{ fill:#E8C6FF; }
+    .zone{ fill:#787771; font-weight:600; letter-spacing:.12em; }
+  </style>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+    <path d="M0,0 L8,3 L0,6 Z" fill="#6D2D93"/>
+  </marker>
+  <marker id="arrowW" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+    <path d="M0,0 L8,3 L0,6 Z" fill="#D28EFF"/>
+  </marker>
+</defs>
+
+<rect width="960" height="620" fill="#FBFBFB"/>
+<text x="40" y="46" class="sans hd" font-size="24">Secure live-feed dashboard architecture</text>
+<text x="40" y="72" class="sans sub" font-size="14">Build plane and data plane never touch. Claude helps write code; customer data never routes through it.</text>
+
+<!-- ===================== BUILD PLANE ===================== -->
+<rect x="40" y="98" width="880" height="150" rx="14" fill="#F6E8FF" stroke="#D4D2C8"/>
+<text x="60" y="124" class="sans zone" font-size="12">BUILD TIME · NO CUSTOMER DATA</text>
+
+<!-- Claude -->
+<rect x="66" y="140" width="200" height="84" rx="12" fill="#441363"/>
+<text x="86" y="176" class="sans h" font-size="17">Claude / Cowork</text>
+<text x="86" y="200" class="sans subw" font-size="12.5">Writes UI + fetch code</text>
+<text x="86" y="217" class="sans subw" font-size="12.5">Sees only sample data</text>
+
+<!-- arrow -->
+<line x1="266" y1="182" x2="360" y2="182" stroke="#6D2D93" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="278" y="174" class="sans sub" font-size="11">generates</text>
+
+<!-- Repo / build -->
+<rect x="360" y="140" width="200" height="84" rx="12" fill="#EEEDE7" stroke="#D4D2C8"/>
+<text x="380" y="176" class="sans lbl" font-size="16">Source repo</text>
+<text x="380" y="200" class="sans sub" font-size="12.5">Frontend + BFF code</text>
+<text x="380" y="217" class="sans sub" font-size="12.5">No secrets committed</text>
+
+<!-- arrow -->
+<line x1="560" y1="182" x2="654" y2="182" stroke="#6D2D93" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="566" y="174" class="sans sub" font-size="11">CI / deploy</text>
+
+<!-- Static host -->
+<rect x="654" y="140" width="200" height="84" rx="12" fill="#EEEDE7" stroke="#D4D2C8"/>
+<text x="674" y="176" class="sans lbl" font-size="16">Static host / CDN</text>
+<text x="674" y="200" class="sans sub" font-size="12.5">Serves shell only</text>
+<text x="674" y="217" class="sans sub" font-size="12.5">HTML / JS / CSS</text>
+
+<!-- ===================== DATA PLANE ===================== -->
+<rect x="40" y="286" width="880" height="296" rx="14" fill="#FBFBFB" stroke="#D4D2C8"/>
+<text x="60" y="312" class="sans zone" font-size="12">RUN TIME · CUSTOMER DATA — CLAUDE IS NOT IN THIS PATH</text>
+
+<!-- Browser -->
+<rect x="66" y="336" width="210" height="210" rx="12" fill="#EEEDE7" stroke="#D4D2C8"/>
+<text x="86" y="370" class="sans lbl" font-size="16">User's browser</text>
+<text x="86" y="394" class="sans sub" font-size="12.5">Dashboard shell (from CDN)</text>
+<text x="86" y="414" class="sans sub" font-size="12.5">Polls / SSE for updates</text>
+<text x="86" y="434" class="sans sub" font-size="12.5">Holds only short-lived token</text>
+<text x="86" y="454" class="sans sub" font-size="12.5">No DB creds, no API keys</text>
+<rect x="86" y="472" width="170" height="52" rx="8" fill="#FBFBFB" stroke="#D4D2C8"/>
+<text x="98" y="493" class="sans lbl" font-size="12.5">Renders metrics /</text>
+<text x="98" y="510" class="sans lbl" font-size="12.5">aggregates only</text>
+
+<!-- IdP -->
+<rect x="386" y="336" width="188" height="70" rx="12" fill="#441363"/>
+<text x="406" y="368" class="sans h" font-size="15">Okta / OIDC</text>
+<text x="406" y="390" class="sans subw" font-size="12">SSO · short-lived tokens</text>
+
+<!-- auth arrows -->
+<line x1="276" y1="372" x2="386" y2="372" stroke="#6D2D93" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="290" y="364" class="sans sub" font-size="10.5">1. sign in</text>
+
+<!-- BFF -->
+<rect x="386" y="430" width="188" height="116" rx="12" fill="#6D2D93"/>
+<text x="406" y="462" class="sans h" font-size="16">BFF service</text>
+<text x="406" y="484" class="sans subw" font-size="11.5">Validates token</text>
+<text x="406" y="502" class="sans subw" font-size="11.5">Enforces entitlements</text>
+<text x="406" y="520" class="sans subw" font-size="11.5">Row-level filtering</text>
+<text x="406" y="538" class="sans subw" font-size="11.5">Holds secrets server-side</text>
+
+<!-- browser <-> BFF -->
+<line x1="276" y1="452" x2="386" y2="480" stroke="#6D2D93" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="286" y="446" class="sans sub" font-size="10.5">2. request + token</text>
+<line x1="386" y1="512" x2="278" y2="512" stroke="#6D2D93" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="286" y="530" class="sans sub" font-size="10.5">5. scoped JSON (TLS)</text>
+
+<!-- BFF <-> token check -->
+<line x1="480" y1="430" x2="480" y2="406" stroke="#6D2D93" stroke-width="2" marker-end="url(#arrow)"/>
+
+<!-- Data store -->
+<rect x="684" y="430" width="188" height="116" rx="12" fill="#EEEDE7" stroke="#D4D2C8"/>
+<text x="704" y="462" class="sans lbl" font-size="16">Data source</text>
+<text x="704" y="484" class="sans sub" font-size="11.5">Snowflake / DB / API</text>
+<text x="704" y="502" class="sans sub" font-size="11.5">Private endpoint</text>
+<text x="704" y="520" class="sans sub" font-size="11.5">Masked / aggregated</text>
+<text x="704" y="538" class="sans sub" font-size="11.5">at source</text>
+
+<line x1="574" y1="478" x2="684" y2="478" stroke="#6D2D93" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="588" y="470" class="sans sub" font-size="10.5">3. scoped query</text>
+<line x1="684" y1="506" x2="576" y2="506" stroke="#6D2D93" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="590" y="524" class="sans sub" font-size="10.5">4. rows</text>
+
+<!-- Lime callout: the single accent -->
+<rect x="620" y="336" width="252" height="70" rx="12" fill="#BFFFA2"/>
+<text x="640" y="366" class="sans" font-size="13" fill="#160923" font-weight="600">Claude never sees this plane</text>
+<text x="640" y="388" class="sans" font-size="11.5" fill="#160923">Data flows browser ↔ BFF ↔ source only</text>
+
+</svg>
