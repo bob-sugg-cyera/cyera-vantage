@@ -4,7 +4,7 @@ import cyeraLogo from "../assets/cyera-logo.svg";
 import { getMetrics, CONN, DATA_CONFIG } from "../data/source";
 
 /* ---------------------------------------------------------
-   Cyera Pulse — Collective Risk Intelligence (demo / prototype)
+   Cyera Vantage — Collective Risk Intelligence (demo / prototype)
    Synthetic data simulating aggregated, anonymized cross-customer
    exposure signal. Wire to real pipeline (finding events, industry
    metadata) to replace the generators below.
@@ -903,7 +903,7 @@ export default function CyeraPulse() {
         <div style={styles.brandRow}>
           <img src={cyeraLogo} alt="Cyera" style={styles.mark} />
           <div>
-            <div style={styles.brandTitle}>CYERA PULSE</div>
+            <div style={styles.brandTitle}>CYERA VANTAGE</div>
             <div style={styles.brandSub}>Collective Risk Intelligence</div>
           </div>
         </div>
@@ -950,7 +950,7 @@ export default function CyeraPulse() {
           <div style={styles.missionLeft}>
             <div style={styles.missionEyebrow}>THE COLLECTIVE IMMUNE SYSTEM FOR ENTERPRISE DATA</div>
             <div style={styles.missionLine}>
-              Every account we protect teaches us how to protect the rest. Pulse puts that collective
+              Every account we protect teaches us how to protect the rest. Vantage puts that collective
               signal in your hands — so you can <span style={{ color: "var(--lilac)" }}>see risk coming
               across your book</span> and act before it costs a customer.
             </div>
@@ -1073,7 +1073,7 @@ export default function CyeraPulse() {
           )}
 
           <div style={styles.benchNote}>
-            Every risk signal in Pulse is tagged to a Cyera pillar. Click a pillar to see which
+            Every risk signal in Vantage is tagged to a Cyera pillar. Click a pillar to see which
             accounts drive it and its top finding types. (Synthetic data — DSPM, Omni DLP, Access
             Trail, AI-SPM, AI Protect.)
           </div>
@@ -2216,7 +2216,7 @@ export default function CyeraPulse() {
         const close = () => { setPlaybook(null); setCopied(false); setNotionPushed(false); };
         const copySteps = () => {
           const text =
-            `Cyera Pulse — Remediation: ${pb.title}\n` +
+            `Cyera Vantage — Remediation: ${pb.title}\n` +
             `Where: ${pb.where}\n` +
             (targets.length ? `Accounts: ${targets.map((t) => t.name).join(", ")}\n` : "") +
             `\n` +
