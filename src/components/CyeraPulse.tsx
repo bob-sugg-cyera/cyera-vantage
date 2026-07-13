@@ -3447,7 +3447,7 @@ const styles = {
     color: "var(--fog-dim)",
     lineHeight: 1.5,
     marginTop: 10,
-    maxWidth: 620,
+    width: "100%",
   },
   overlay: {
     position: "fixed",
