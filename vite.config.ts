@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   // GitHub Pages serves from /<repo>/ — assets need this base path to resolve.
-  base: "/cyera-pulse/",
+  base: "/cyera-vantage/",
   plugins: [react()],
   server: {
     // Allow tunnel hosts (localtunnel / cloudflare) to reach the dev server.
