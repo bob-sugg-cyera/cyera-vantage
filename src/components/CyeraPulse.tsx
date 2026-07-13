@@ -1931,7 +1931,7 @@ export default function CyeraPulse() {
 
       <footer style={styles.footer}>
         Demo build with synthetic data — wire to live finding events + account metadata to make
-        this real. All signal is aggregate and anonymized by design; no account is ever named.
+        this real. Collective signal is aggregated and anonymized; your own book is named and scoped to your entitlements.
       </footer>
 
       {/* ACCOUNT DETAIL DRAWER (b) */}
