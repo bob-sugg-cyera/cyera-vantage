@@ -23,7 +23,9 @@ const cors = require("cors");
 // Security-critical logic lives in a framework-free, unit-testable module.
 const {
   validateToken,
+  identityFromProxy,
   scopeForUser,
+  scopeFromEmail,
   loadCollective,
   loadMyBook,
   loadMetrics,
@@ -31,6 +33,13 @@ const {
 
 const app = express();
 const PORT = process.env.PORT || 8787;
+
+// DATA_MODE=live  → real, proxy-authenticated, Snowflake-backed (production).
+// DATA_MODE=demo  → token stub + synthetic scaffold (default; safe offline).
+const LIVE = process.env.DATA_MODE === "live";
+// The real data source is only required in live mode, so demo runs need no
+// snowflake-sdk / credentials installed.
+const live = LIVE ? require("./datasource.snowflake") : null;
 
 // Lock the origin down to your dashboard's host. In prod set ALLOWED_ORIGIN.
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "http://localhost:5173";
@@ -63,9 +72,18 @@ app.use(
 
 app.use(express.json({ limit: "16kb" }));
 
-// Auth guard — delegates verification to logic.validateToken (swap the stub
-// there for real OIDC/JWT verification). Rejects any request without a valid token.
+// Auth guard.
+//  - live: trust the access-proxy-injected identity header (Okta terminated
+//    upstream). The BFF must only be reachable via that proxy — enforced by the
+//    ingress/NetworkPolicy in cyera-flux, NOT by this code.
+//  - demo: the token stub, so the synthetic scaffold still runs offline.
 function requireAuth(req, res, next) {
+  if (LIVE) {
+    const id = identityFromProxy(req);
+    if (!id) return res.status(401).json({ error: "unauthorized" });
+    req.identity = id; // { email, name }
+    return next();
+  }
   const user = validateToken(req.headers.authorization);
   if (!user) return res.status(401).json({ error: "unauthorized" });
   req.user = user;
@@ -75,18 +93,33 @@ function requireAuth(req, res, next) {
 // ---- COLLECTIVE layer — aggregate, anonymized, SAME for everyone -----------
 // Auth still required (it's internal), but the payload is not scoped: every
 // entitled user benefits from the whole base. No account is ever named here.
-app.get("/api/collective", requireAuth, (_req, res) => {
+app.get("/api/collective", requireAuth, async (_req, res) => {
   res.set("Cache-Control", "no-store");
-  res.json(loadCollective());
+  try {
+    res.json(LIVE ? await live.loadCollective() : loadCollective());
+  } catch (e) {
+    console.error("collective query failed:", e.message);
+    res.status(502).json({ error: "upstream_error" });
+  }
 });
 
 // ---- ENTITLED layer — the caller's OWN (or team's) accounts, named ---------
-// scopeForUser resolves the caller's entitled account IDs; loadMyBook filters
-// to exactly those. Unentitled rows never leave the server.
-app.get("/api/my-book", requireAuth, (req, res) => {
-  const scope = scopeForUser(req.user);
+// The scope resolves the caller's entitled owners; loadMyBook binds them into a
+// WHERE at the source. Unentitled rows never leave the server.
+app.get("/api/my-book", requireAuth, async (req, res) => {
   res.set("Cache-Control", "no-store");
-  res.json(loadMyBook(scope));
+  try {
+    if (LIVE) {
+      // TODO(entitlements): pass managerReports once the manager→reports source
+      // is confirmed; until then a manager sees only their own SE'd accounts.
+      const scope = scopeFromEmail(req.identity.email);
+      return res.json(await live.loadMyBook(scope));
+    }
+    res.json(loadMyBook(scopeForUser(req.user)));
+  } catch (e) {
+    console.error("my-book query failed:", e.message);
+    res.status(502).json({ error: "upstream_error" });
+  }
 });
 
 // ---- Legacy combined endpoint (kept for the original dashboard) ------------

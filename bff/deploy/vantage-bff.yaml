@@ -1,0 +1,86 @@
+# Cyera Vantage BFF — Kubernetes manifest (DRAFT for cyera-flux)
+# ---------------------------------------------------------------------------
+# This is a starting-point manifest to hand to Platform. It is NOT applied from
+# this repo — it belongs in cyera-flux (see ../PLATFORM-ASK.md for the open
+# items that must be confirmed before this is deployable).
+#
+# Security model (from ../DATA-ACCESS-SPEC.md):
+#   - The BFF is reachable ONLY through the access proxy that injects the
+#     authenticated user's email. The NetworkPolicy below is what enforces
+#     "only the proxy can reach us" — without it, the identity header is
+#     spoofable and the whole entitlement model collapses. Do NOT skip it.
+#   - Snowflake creds are the BFF's OWN service account, mounted from a Secret.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vantage-bff
+  labels: { app: vantage-bff }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: vantage-bff }
+  template:
+    metadata:
+      labels: { app: vantage-bff }
+    spec:
+      containers:
+        - name: vantage-bff
+          image: <registry>/vantage-bff:<tag>   # CONFIRM: registry + CI build
+          ports:
+            - containerPort: 8787
+          env:
+            - name: DATA_MODE
+              value: "live"
+            - name: IDENTITY_HEADER
+              value: "x-auth-request-email"      # CONFIRM with Platform (see PLATFORM-ASK.md)
+            - name: ALLOWED_ORIGIN
+              value: "https://<vantage-host>"    # CONFIRM ingress host
+            - name: SNOWFLAKE_ACCOUNT
+              value: "tdb04658.us-east-1"
+            - name: SNOWFLAKE_DATABASE
+              value: "CYERA_BI_DBT_PROD"
+            - name: SNOWFLAKE_WAREHOUSE
+              valueFrom: { secretKeyRef: { name: vantage-bff-snowflake, key: warehouse } }
+            - name: SNOWFLAKE_ROLE
+              valueFrom: { secretKeyRef: { name: vantage-bff-snowflake, key: role } }
+            - name: SNOWFLAKE_USERNAME
+              valueFrom: { secretKeyRef: { name: vantage-bff-snowflake, key: username } }
+            - name: SNOWFLAKE_PASSWORD
+              valueFrom: { secretKeyRef: { name: vantage-bff-snowflake, key: password } }
+          readinessProbe:
+            httpGet: { path: /healthz, port: 8787 }
+            initialDelaySeconds: 5
+          resources:
+            requests: { cpu: "100m", memory: "128Mi" }
+            limits:   { cpu: "500m", memory: "256Mi" }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vantage-bff
+spec:
+  selector: { app: vantage-bff }
+  ports:
+    - port: 80
+      targetPort: 8787
+---
+# Only the access proxy may reach the BFF. THIS is what makes the injected
+# identity header trustworthy. Namespace/label selectors CONFIRM with Platform.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: vantage-bff-proxy-only
+spec:
+  podSelector:
+    matchLabels: { app: vantage-bff }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels: { name: <access-proxy-namespace> }   # CONFIRM
+          podSelector:
+            matchLabels: { app: <access-proxy-app-label> }    # CONFIRM
+      ports:
+        - protocol: TCP
+          port: 8787

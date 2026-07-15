@@ -63,6 +63,41 @@ function validateToken(authHeader) {
   return DEMO_USERS[token] || null;
 }
 
+// [AUTH — PRODUCTION] Trust the identity injected by the access proxy that
+// fronts internal Cyera apps. The proxy terminates Okta auth BEFORE the request
+// reaches us and sets a header with the authenticated user's email; the BFF
+// must NOT be reachable except through that proxy (enforced by the ingress /
+// NetworkPolicy in cyera-flux, not by this code).
+//
+// UNKNOWN — the exact header name the Cyera access proxy injects. It is
+// configurable via IDENTITY_HEADER; the default below is the common
+// oauth2-proxy convention and MUST be confirmed with Platform/IT before
+// go-live. If the proxy also injects a signature/JWT to verify, add that check
+// here — do not trust a bare header on a route the proxy doesn't exclusively front.
+function identityFromProxy(req, headerName = process.env.IDENTITY_HEADER || "x-auth-request-email") {
+  const email = (req.headers[headerName.toLowerCase()] || "").trim().toLowerCase();
+  if (!email || !email.includes("@")) return null;
+  return { email, name: email.split("@")[0] };
+}
+
+// [ENTITLE — PRODUCTION] Resolve the caller's entitled scope from their email.
+// A CSE sees the accounts where they are the SE (SE_USER_EMAIL = them). Manager
+// hierarchy is a WIDER scope: expand `email` to the set of report emails.
+// UNKNOWN — the manager→reports mapping source. Until Platform confirms whether
+// Okta groups model this (preferred) or we need an entitlements table, this
+// returns the single-owner scope. managerReports (optional) lets the caller
+// inject a resolved report list without changing this signature.
+function scopeFromEmail(email, { managerReports = null } = {}) {
+  const ownerEmails = managerReports && managerReports.length
+    ? Array.from(new Set([email, ...managerReports.map((e) => e.toLowerCase())]))
+    : [email];
+  return {
+    userId: email,
+    isManager: !!(managerReports && managerReports.length),
+    ownerEmails, // whose accounts this caller may see — bound into the WHERE at the source
+  };
+}
+
 // [ENTITLE] STUB — replace with a real entitlement lookup (org hierarchy +
 // account ownership). Returns the set of account IDs the caller may see/act on.
 // A CSE gets their own book; a manager gets their whole team's.
@@ -167,7 +202,9 @@ function loadMetrics(scope, rnd = Math.random) {
 
 module.exports = {
   validateToken,
+  identityFromProxy,
   scopeForUser,
+  scopeFromEmail,
   loadCollective,
   loadMyBook,
   loadMetrics,
