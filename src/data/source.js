@@ -1,8 +1,8 @@
 /* =========================================================================
-   Cyera Pulse — data-source seam
+   Cyera Vantage — data-source seam
    -------------------------------------------------------------------------
    The single place the frontend reaches for data. Today it returns the
-   built-in SYNTHETIC model (Pulse's BOOK/pillars/etc. live in the component).
+   built-in SYNTHETIC model (Vantage's BOOK/pillars/etc. live in the component).
    When a real backend is ready, flip `enabled` on and point `apiBase` at the
    BFF (see ../bff). The browser only ever holds a short-lived bearer token
    from the IdP — never DB creds or API keys.
@@ -35,9 +35,9 @@ export const CONN = {
 
 /**
  * Fetch live metrics from the BFF. Returns the parsed payload or throws.
- * The shape the BFF must return to fully drive Pulse is documented in
+ * The shape the BFF must return to fully drive Vantage is documented in
  * ../bff/README.md — today's BFF serves a simpler metrics payload, so the
- * `loadMetrics` there needs to be extended to Pulse's model (book, pillars,
+ * `loadMetrics` there needs to be extended to Vantage's model (book, pillars,
  * predictions, composite) before this replaces the in-component synthetic data.
  */
 export async function fetchLive() {

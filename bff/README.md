@@ -43,7 +43,7 @@ put the data source on a private endpoint, and add audit logging.
 
 | Endpoint | Method | Purpose | Notes |
 |---|---|---|---|
-| `/api/metrics` | GET | Live dashboard data | ✅ scaffolded. Extend `loadMetrics` to Pulse's model (book, pillars, predictions, composite). |
+| `/api/metrics` | GET | Live dashboard data | ✅ scaffolded. Extend `loadMetrics` to Vantage's model (book, pillars, predictions, composite). |
 | `/api/notion/project` | POST | Create a remediation Project in Notion from a playbook | ⬜ TODO. Body: `{ playbookKey, targetIds, steps[] }`. The BFF holds the Notion token server-side and calls the Notion API to create the checklist page (browser must NOT hold the Notion credential). Return the created page URL so the frontend can link to it. Guard behind the same `requireAuth`; apply the caller's entitlements to the accounts referenced. |
 
 The frontend's "Create Project in Notion" button (remediation playbook modal) currently

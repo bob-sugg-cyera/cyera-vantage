@@ -67,7 +67,7 @@ const INDUSTRIES = [
 
 /* Cyera's five platform pillars (from the product architecture: Protect Data
    → DSPM + Omni DLP; Govern Access → Access Trail; Secure AI → AI-SPM + AI
-   Protect). Every risk signal in Pulse is tagged to a pillar so the platform
+   Protect). Every risk signal in Vantage is tagged to a pillar so the platform
    is holistic — data at rest, in motion, and in use. */
 const PILLARS = {
   dspm: { key: "dspm", name: "DSPM", group: "Protect Data", blurb: "Data security posture — where sensitive data is exposed" },
@@ -436,7 +436,7 @@ function bookForCSE(member) {
 
 /* ---- Stage-2 "Predict": collective-intelligence forecasts ----
    The reframe: because Cyera sees the same pattern hit many orgs in a cohort
-   before it reaches the next one, Pulse can forecast a customer's exposure
+   before it reaches the next one, Vantage can forecast a customer's exposure
    BEFORE it lands. Synthetic here, but the shape mirrors what real cross-
    customer finding-event data would produce. Each prediction = a pattern
    spreading through an industry cohort, projected onto one of your accounts
@@ -479,7 +479,7 @@ const PREDICTIONS = [
 
 /* Resolved predictions — the track record that makes forecasting credible.
    Past forecasts that landed as predicted, with the customer protected in
-   time because Pulse flagged it early. Drives the "hit rate" proof strip. */
+   time because Vantage flagged it early. Drives the "hit rate" proof strip. */
 const PREDICTION_LEDGER = {
   hitRate: 89, // % of forecasts that materialized within their window
   total: 47, // forecasts resolved to date
@@ -493,7 +493,7 @@ const PREDICTION_LEDGER = {
 };
 
 /* ---- Stage-3 "Autonomous defense" — the immune response ----
-   When a forecast threatens multiple accounts, Pulse auto-drafts a defense
+   When a forecast threatens multiple accounts, Vantage auto-drafts a defense
    and offers to deploy it across the whole exposed set in one action. The
    human stays in the loop (review → confirm → deploy). This is the audacious
    end-state: risk that took a CSE a quarter to chase closes in a day, at scale.
@@ -688,7 +688,7 @@ function tickAround(series, base) {
   return [...trimmed, { t, v: Math.round(v * 10) / 10 }];
 }
 
-export default function CyeraPulse() {
+export default function CyeraVantage() {
   const [composite, setComposite] = useState(() => seedAround(COMPOSITE.level));
   const [industries, setIndustries] = useState(() =>
     INDUSTRIES.map((i) => ({ ...i, series: seedSeries(i.base, 24) }))
@@ -844,7 +844,7 @@ export default function CyeraPulse() {
   }, [composite, projection]);
 
   // Pillar coverage — aggregate risk across Cyera's 5 platform pillars from
-  // all account findings. Makes Pulse holistic (data at rest / in motion / in use).
+  // all account findings. Makes Vantage holistic (data at rest / in motion / in use).
   const pillarCoverage = useMemo(() => {
     const agg = {};
     PILLAR_ORDER.forEach((k) => (agg[k] = { findings: 0, accounts: new Set(), rising: 0, hottest: 0 }));
