@@ -1,7 +1,7 @@
-import CyeraPulse from "./components/CyeraPulse";
+import CyeraVantage from "./components/CyeraVantage";
 
 function App() {
-  return <CyeraPulse />;
+  return <CyeraVantage />;
 }
 
 export default App;
