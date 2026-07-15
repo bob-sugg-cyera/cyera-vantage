@@ -117,13 +117,23 @@ const SIZE_LABEL = {
 };
 
 /* Per-industry peer cohort: median exposure (base) + cohort size (n).
-   In production these come from the anonymized cross-customer aggregate. */
+   REAL anonymized cross-customer aggregate — snapshot 2026-07-15 from
+   CYERA_BI_DBT_PROD.CS.CS__CUSTOMER_RISK joined to PRODUCT.PRODUCT__TENANT_ISSUE_METRICS
+   (EXCLUDE_FROM_ANALYTICS = FALSE). Aggregate counts + medians only; no account
+   is named. Every cohort clears the MIN_COHORT floor (n ≥ 10).
+
+   `median` is a derived Exposure Index (0–100), cohort median of a per-customer
+   score built from real fields — there is no native exposure score in the data:
+     0.50 · sensitive-datastore share (LIVE_SENSITIVE_DATASTORES / LIVE_DATASTORES)
+   + 0.30 · issue burden  ln(1+TOTAL_ISSUES)/ln(50001)   (log-normalized, p90≈50k)
+   + 0.20 · scan blind spot (1 − SCANNED_PERCENT)
+   To refresh, re-run the index query and paste the medians here. */
 const COHORT = {
-  fin: { name: "Financial Services", median: 58, n: 143 },
-  health: { name: "Healthcare", median: 71, n: 96 },
-  saas: { name: "SaaS & Technology", median: 44, n: 210 },
-  retail: { name: "Retail & Consumer", median: 39, n: 118 },
-  mfg: { name: "Manufacturing", median: 33, n: 74 },
+  fin: { name: "Financial Services", median: 43, n: 69 },
+  health: { name: "Healthcare", median: 49, n: 30 },
+  saas: { name: "SaaS & Technology", median: 45, n: 55 },
+  retail: { name: "Retail & Consumer", median: 45, n: 25 },
+  mfg: { name: "Manufacturing", median: 45, n: 16 },
 };
 
 const PEER_SIGMA = 15; // spread of the peer distribution (synthetic)
@@ -697,7 +707,7 @@ export default function CyeraPulse() {
   const [view, setView] = useState("book"); // "book" (My Book) | "team" (Manager view)
   const [teamTab, setTeamTab] = useState("heat"); // "heat" | "load" | "velocity"
   const [drillCSE, setDrillCSE] = useState(null); // CSE member whose book is drilled into
-  const [netOrgs, setNetOrgs] = useState(641); // orgs contributing to the collective signal (live-ticks up)
+  const [netOrgs, setNetOrgs] = useState(420); // customers contributing to the collective signal — real snapshot 2026-07-15 (CS__CUSTOMER_RISK, EXCLUDE_FROM_ANALYTICS=FALSE); live-ticks up
   const [netPatterns, setNetPatterns] = useState(12847); // patterns learned across the base
   const [indexExpanded, setIndexExpanded] = useState(false); // ① decompose panel toggle
   const [pillarFilter, setPillarFilter] = useState("all"); // filter feed by Cyera pillar
