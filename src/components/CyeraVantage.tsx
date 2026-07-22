@@ -129,11 +129,11 @@ const SIZE_LABEL = {
    + 0.20 · scan blind spot (1 − SCANNED_PERCENT)
    To refresh, re-run the index query and paste the medians here. */
 const COHORT = {
-  fin: { name: "Financial Services", median: 43, n: 69 },
-  health: { name: "Healthcare", median: 49, n: 30 },
-  saas: { name: "SaaS & Technology", median: 45, n: 55 },
-  retail: { name: "Retail & Consumer", median: 45, n: 25 },
-  mfg: { name: "Manufacturing", median: 45, n: 16 },
+  fin: { name: "Financial Services", median: 43, n: 72 },
+  health: { name: "Healthcare", median: 47, n: 34 },
+  saas: { name: "SaaS & Technology", median: 45, n: 54 },
+  retail: { name: "Retail & Consumer", median: 45, n: 24 },
+  mfg: { name: "Manufacturing", median: 44, n: 17 },
 };
 
 const PEER_SIGMA = 15; // spread of the peer distribution (synthetic)
@@ -707,7 +707,7 @@ export default function CyeraVantage() {
   const [view, setView] = useState("book"); // "book" (My Book) | "team" (Manager view)
   const [teamTab, setTeamTab] = useState("heat"); // "heat" | "load" | "velocity"
   const [drillCSE, setDrillCSE] = useState(null); // CSE member whose book is drilled into
-  const [netOrgs, setNetOrgs] = useState(420); // customers contributing to the collective signal — real snapshot 2026-07-15 (CS__CUSTOMER_RISK, EXCLUDE_FROM_ANALYTICS=FALSE); live-ticks up
+  const [netOrgs, setNetOrgs] = useState(427); // customers contributing to the collective signal — real snapshot 2026-07-15 (CS__CUSTOMER_RISK, EXCLUDE_FROM_ANALYTICS=FALSE); live-ticks up
   const [netPatterns, setNetPatterns] = useState(12847); // patterns learned across the base
   const [indexExpanded, setIndexExpanded] = useState(false); // ① decompose panel toggle
   const [pillarFilter, setPillarFilter] = useState("all"); // filter feed by Cyera pillar
